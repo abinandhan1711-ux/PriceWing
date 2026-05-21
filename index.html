@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PriceWing - Flight Price Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; }
+    .price-old { text-decoration: line-through; color: #9ca3af; }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-plane text-3xl text-blue-600"></i>
+        <h1 class="text-2xl font-bold text-gray-800">PriceWing</h1>
+      </div>
+      <p class="text-gray-600">Track Flight Prices • Never Overpay</p>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- Search Form -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-10">
+      <h2 class="text-2xl font-semibold mb-6 text-center">Search Flights & Compare Prices</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">From</label>
+          <select id="from" class="w-full p-3 border rounded-xl focus:outline-none focus:border-blue-500">
+            <option value="Chennai (MAA)">Chennai (MAA)</option>
+            <option value="Delhi (DEL)">Delhi (DEL)</option>
+            <option value="Mumbai (BOM)">Mumbai (BOM)</option>
+            <option value="Bangalore (BLR)">Bangalore (BLR)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">To</label>
+          <select id="to" class="w-full p-3 border rounded-xl focus:outline-none focus:border-blue-500">
+            <option value="Delhi (DEL)">Delhi (DEL)</option>
+            <option value="Mumbai (BOM)">Mumbai (BOM)</option>
+            <option value="Bangalore (BLR)">Bangalore (BLR)</option>
+            <option value="Chennai (MAA)">Chennai (MAA)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Departure Date</label>
+          <input type="date" id="date" class="w-full p-3 border rounded-xl focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="flex items-end">
+          <button onclick="searchFlights()" 
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
+            <i class="fa-solid fa-magnifying-glass mr-2"></i>
+            Search Flights
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="hidden">
+      <h3 class="text-xl font-semibold mb-4" id="route-title"></h3>
+      
+      <div class="bg-white rounded-2xl shadow overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-4 px-6 text-left">Airline</th>
+              <th class="py-4 px-6 text-left">Departure</th>
+              <th class="py-4 px-6 text-left">Arrival</th>
+              <th class="py-4 px-6 text-center">Duration</th>
+              <th class="py-4 px-6 text-right">Old Price</th>
+              <th class="py-4 px-6 text-right">Current Price</th>
+              <th class="py-4 px-6 text-center">You Save</th>
+              <th class="py-4 px-6"></th>
+            </tr>
+          </thead>
+          <tbody id="flight-list" class="divide-y"></tbody>
+        </table>
+      </div>
+
+      <p class="text-center text-sm text-gray-500 mt-6">
+        <i class="fa-solid fa-info-circle"></i> Prices are updated in real-time. Book now to lock in the lowest fare.
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+    function searchFlights() {
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      const date = document.getElementById('date').value || "2026-06-15";
+
+      document.getElementById('route-title').innerHTML = 
+        `Flights from <span class="text-blue-600">${from}</span> to <span class="text-blue-600">${to}</span> on ${date}`;
+
+      const flights = [
+        {
+          airline: "IndiGo",
+          dep: "06:45",
+          arr: "09:30",
+          duration: "2h 45m",
+          oldPrice: 6899,
+          newPrice: 4299,
+          save: "38%"
+        },
+        {
+          airline: "Air India",
+          dep: "08:20",
+          arr: "11:10",
+          duration: "2h 50m",
+          oldPrice: 8499,
+          newPrice: 5799,
+          save: "32%"
+        },
+        {
+          airline: "SpiceJet",
+          dep: "14:15",
+          arr: "17:05",
+          duration: "2h 50m",
+          oldPrice: 5999,
+          newPrice: 3999,
+          save: "33%"
+        },
+        {
+          airline: "Vistara",
+          dep: "19:30",
+          arr: "22:25",
+          duration: "2h 55m",
+          oldPrice: 9299,
+          newPrice: 6499,
+          save: "30%"
+        }
+      ];
+
+      let html = "";
+      flights.forEach(flight => {
+        const savings = flight.oldPrice - flight.newPrice;
+        html += `
+          <tr class="hover:bg-gray-50 transition">
+            <td class="py-5 px-6 font-medium">${flight.airline}</td>
+            <td class="py-5 px-6">${flight.dep}</td>
+            <td class="py-5 px-6">${flight.arr}</td>
+            <td class="py-5 px-6 text-center">${flight.duration}</td>
+            <td class="py-5 px-6 text-right price-old">₹${flight.oldPrice.toLocaleString('en-IN')}</td>
+            <td class="py-5 px-6 text-right text-2xl font-bold text-green-600">₹${flight.newPrice.toLocaleString('en-IN')}</td>
+            <td class="py-5 px-6 text-center">
+              <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                Save ₹${savings} (${flight.save})
+              </span>
+            </td>
+            <td class="py-5 px-6 text-center">
+              <button onclick="bookNow('${flight.airline}')" 
+                      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm font-medium transition">
+                Book Now
+              </button>
+            </td>
+          </tr>`;
+      });
+
+      document.getElementById('flight-list').innerHTML = html;
+      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('results').scrollIntoView({ behavior: "smooth" });
+    }
+
+    function bookNow(airline) {
+      alert(`🎉 Redirecting to ${airline} booking page...\n\n(This is a demo project)`);
+    }
+
+    // Set default date
+    document.addEventListener('DOMContentLoaded', () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 7);
+      document.getElementById('date').value = tomorrow.toISOString().split('T')[0];
+    });
+  </script>
+
+</body>
+</html>
